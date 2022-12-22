@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Edit Contact";
+}
+
+<h1>Edit</h1>
+
+<div class="container-md">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="id">Id</label>
+            <input type="text" class="form-control" id="id" readonly>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="email">Email</label>
+            <input type="text" class="form-control" id="email" />
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <button type="button" id="updateBtn" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Update</button>
+        </div>
+    </div>
+
+</div>
+
+<br />
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+@section scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            loadContact();
+
+            $("#updateBtn").click(async function () {
+                var response = await updateContact();
+                initData(response);
+            });
+        });
+
+        async function loadContact() {
+            const data = await getContact();
+            initData(data);
+        }
+
+        function initData(aData) {
+            console.log(aData);
+            $("#id").val(aData.id);
+            $("#name").val(aData.name);
+            $("#email").val(aData.email);
+        }
+
+        async function getContact() {
+            let result;
+            try {
+                result = await $.ajax({
+                    url: 'https://elite-dev-test-api.azurewebsites.net/api/Contact/' + @ViewBag.postId,
+                    type: 'GET',
+                    data: '',
+                })
+                return result;
+            } catch (error) {
+                alert(error)
+            }
+        }
+
+        async function updateContact() {
+            let result;
+            let request = {
+                id: $("#id").val(),
+                name: $("#name").val(),
+                email: $("#email").val(),
+            };
+
+            try {
+
+                result = await $.ajax({
+                    url: 'https://elite-dev-test-api.azurewebsites.net/api/Contact/'+ @ViewBag.postId,
+                    type: 'PUT',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(request),
+                })
+                alert("Contact Id " + result.id + " updated!!");
+                return result;
+            } catch (error) {
+                alert(error);
+            }
+        }
+    </script>
+}

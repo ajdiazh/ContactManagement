@@ -1,0 +1,100 @@
+﻿@{
+    ViewData["Title"] = "Contacts";
+}
+
+<h1>Contacts</h1>
+
+<div class="form-row">
+    <div class="form-group col-md-6">
+        <button type="button" id="createBtn" onclick="location.href='@Url.Action("Create","Contacts")'" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Create</button>
+    </div>
+</div>
+
+<br />
+
+
+<table id="tblContacts" class="table table-striped w-100">
+    <thead>
+        <tr>
+            <th class="sort">Id</th>
+            <th class="sort">Name</th>
+            <th class="sort">Email</th>
+            <th class="sort">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            getContacts();
+        });
+
+        async function getContacts() {
+            const data = await getAllContacts();
+            initTable(data);
+        }
+
+        async function getAllContacts(param) {
+            let result;
+            try {
+                result = await $.ajax({
+                    url: 'https://elite-dev-test-api.azurewebsites.net/api/Contact',
+                    type: 'GET',
+                    data: param,
+                })
+                return result;
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        function initTable(aData) {
+            var table = $("#tblContacts").DataTable({
+                data: aData,
+                "columns": [
+                    { data: "id" },
+                    { data: "name" },
+                    { data: "email" },
+                    {
+                        data: 'id',
+                        render: function (data, type, row, meta) {
+                            let urlEdit = '@Url.Action("Edit", "Contacts", new { id = "id" })'.replace('id', data);
+                            let urlDelete = '@Url.Action("Delete", "Contacts", new { id = "id" })'.replace('id', data);
+                            return '<a class="px-1" href="' + urlEdit + '"><i class="fa-solid fa-pen-to-square"></i></a>' +
+                                '<a class="px-1" href="javascript:deleteContact(' + data + ')"><i class="fa-solid fa-trash-can"></i></a>';
+                        }
+                    }
+                ],
+            });
+        }
+
+        async function deleteContact(id) {
+            const data = await deleteContactAjax(id);
+            //console.log(data);
+            $('#tblContacts').DataTable().clear();
+            $('#tblContacts').DataTable().destroy();
+            getContacts();
+        }
+
+        async function deleteContactAjax(param) {
+            let result
+            try {
+                result = await $.ajax({
+                    url: 'https://elite-dev-test-api.azurewebsites.net/api/Contact/' + param,
+                    type: 'DELETE',
+                    data: param,
+                })
+                alert("Contact deleted!!");
+                return result;
+            } catch (error) {
+                alert(error);
+            }
+        }
+
+    </script>
+}

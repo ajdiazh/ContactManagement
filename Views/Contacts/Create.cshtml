@@ -1,0 +1,85 @@
+﻿@{
+    ViewData["Title"] = "Create Contact";
+}
+
+<h1>Create Contact</h1>
+
+<div class="container-md">
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="id">Id</label>
+            <input type="text" class="form-control" id="id" readonly>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="email">Email</label>
+            <input type="text" class="form-control" id="email" />
+        </div>
+    </div>
+
+    <br />
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <button type="button" id="saveBtn" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save </button>
+        </div>
+    </div>
+
+</div>
+
+<br />
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#saveBtn").click(async function () {
+                var response = await saveContact();
+                initData(response);
+            });
+        });
+
+        function initData(aData) {
+            $("#id").val(aData.id);
+            $("#name").val(aData.name);
+            $("#email").val(aData.email);
+        }
+
+        async function saveContact() {
+            let result;
+            let request = {
+                id: 0,
+                name: $("#name").val(),
+                email: $("#email").val(),
+            };
+
+            try {
+                result = await $.ajax({
+                    url: 'https://elite-dev-test-api.azurewebsites.net/api/Contact/',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(request),
+                })
+                alert("Contact Id " + result.id + " saved!!");
+                return result;
+            } catch (error) {
+                alert(error);
+            }
+        }
+    </script>
+}
